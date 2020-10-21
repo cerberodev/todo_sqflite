@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:todo_sqflite/models/note.dart';
+import 'package:todo_sqflite/utils/database_helper.dart';
 
 class NoteList extends StatefulWidget {
   NoteList({Key key}) : super(key: key);
@@ -9,6 +11,10 @@ class NoteList extends StatefulWidget {
 }
 
 class _NoteListState extends State<NoteList> {
+  DataBaseHelper dataBaseHelper = DataBaseHelper();
+  List<Note> noteList;
+  int count = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
