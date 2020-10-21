@@ -18,7 +18,7 @@ class NoteDetail extends StatefulWidget {
 class NoteDetailState extends State<NoteDetail> {
   static var _priorities = ['High', 'Low'];
 
-  DataBaseHelper dataBaseHelper = DataBaseHelper();
+  DataBaseHelper helper = DataBaseHelper();
 
   String appBarTitle;
   Note note;
@@ -122,7 +122,7 @@ class NoteDetailState extends State<NoteDetail> {
     if (note.id != null) {
       result = await helper.updateNote(note);
     } else {
-      result = await helper.inserNote(note);
+      result = await helper.insertNote(note);
     }
 
     if (result != 0) {
@@ -133,8 +133,26 @@ class NoteDetailState extends State<NoteDetail> {
   }
 
   void _delete() async {
+    moveToLastScreen();
+
     if (note.id == null) {
       _showAlertDialog('Status', 'No note was deleted');
+      return;
     }
+
+    int result = await helper.deleteNote(note.id);
+    if (result != 0) {
+      _showAlertDialog('Status', 'Note Deleted Succesfully');
+    } else {
+      _showAlertDialog('Status', 'Error Occured when Deleting Note');
+    }
+  }
+
+  void _showAlertDialog(String title, String message) {
+    AlertDialog alertDialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+    );
+    showDialog(context: context, builder: (_) => alertDialog);
   }
 }
