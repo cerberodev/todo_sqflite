@@ -65,4 +65,11 @@ class DataBaseHelper {
         where: '$colId =?', whereArgs: [note.id]);
     return result;
   }
+
+  Future<int> deleteNote(int id) async {
+    var db = await this.database;
+    int result =
+        await db.rawDelete('DELETE FROM $noteTable WHERE $colId = $id');
+    return result;
+  }
 }
