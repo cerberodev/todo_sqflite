@@ -45,4 +45,24 @@ class DataBaseHelper {
         'CREATE TABLE $noteTable($colId INTERGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, '
         '$colDescription Text, $colPriority INTERGER, $colDate TEXT)');
   }
+
+  Future<List<Map<String, dynamic>>> getNoteMapList() async {
+    Database db = await this.database;
+
+    var result = await db.query(noteTable, orderBy: '$colPriority ASC');
+    return result;
+  }
+
+  Future<int> insertNote(Note note) async {
+    Database db = await this.database;
+    var result = await db.insert(noteTable, note.toMap());
+    return result;
+  }
+
+  Future<int> updateNote(Note note) async {
+    var db = await this.database;
+    var result = await db.update(noteTable, note.toMap(),
+        where: '$colId =?', whereArgs: [note.id]);
+    return result;
+  }
 }
