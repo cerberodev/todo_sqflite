@@ -26,12 +26,12 @@ class DataBaseHelper {
 
   Future<Database> get database async {
     if (_database == null) {
-      _database = await initialzeDatabase();
+      _database = await initializeDatabase();
     }
     return _database;
   }
 
-  Future<Database> initialzeDatabase() async {
+  Future<Database> initializeDatabase() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String path = directory.path + 'notes.db';
 
@@ -42,8 +42,8 @@ class DataBaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
-        'CREATE TABLE $noteTable($colId INTERGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, '
-        '$colDescription Text, $colPriority INTERGER, $colDate TEXT)');
+        'CREATE TABLE $noteTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, '
+        '$colDescription Text, $colPriority INTEGER, $colDate TEXT)');
   }
 
   Future<List<Map<String, dynamic>>> getNoteMapList() async {

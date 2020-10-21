@@ -71,6 +71,60 @@ class NoteDetailState extends State<NoteDetail> {
                   },
                 ),
               ),
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: TextField(
+                  controller: titleController,
+                  style: textStyle,
+                  onChanged: (value) {
+                    debugPrint('Changed in Title of text field');
+                    updateTitle();
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: TextField(
+                  controller: descriptionController,
+                  style: textStyle,
+                  onChanged: (value) {
+                    debugPrint('Changed in Description of text field');
+                    updateDescription();
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: RaisedButton(
+                        child: Text('Save'),
+                        onPressed: () {
+                          setState(() {
+                            debugPrint('OnPressed Save Raised Button');
+                            _save();
+                          });
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Expanded(
+                      child: RaisedButton(
+                        child: Text('Delete'),
+                        onPressed: () {
+                          setState(() {
+                            debugPrint('OnPressed Delete Raised Button');
+                            _delete();
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -110,11 +164,11 @@ class NoteDetailState extends State<NoteDetail> {
     note.title = titleController.text;
   }
 
-  void updateDesciption() {
+  void updateDescription() {
     note.description = descriptionController.text;
   }
 
-  void save() async {
+  void _save() async {
     moveToLastScreen();
 
     note.date = DateFormat.yMMMd().format(DateTime.now());

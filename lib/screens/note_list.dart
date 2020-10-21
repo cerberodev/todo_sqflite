@@ -6,8 +6,6 @@ import 'package:todo_sqflite/screens/note_detail.dart';
 import 'package:todo_sqflite/utils/database_helper.dart';
 
 class NoteList extends StatefulWidget {
-  NoteList({Key key}) : super(key: key);
-
   @override
   _NoteListState createState() => _NoteListState();
 }
@@ -19,13 +17,20 @@ class _NoteListState extends State<NoteList> {
 
   @override
   Widget build(BuildContext context) {
+    if (noteList == null) {
+      noteList = List<Note>();
+      updateListView();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('To Do App'),
       ),
-      //body: ,
+      body: getNoteList(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          navigateToDetail(Note('', '', 2, ''), 'Add Note');
+        },
         tooltip: 'Add Note',
         child: Icon(Icons.add),
       ),
@@ -52,9 +57,9 @@ class _NoteListState extends State<NoteList> {
               style: titleStyle,
             ),
             subtitle: Text(this.noteList[position].date),
-            trailing: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () {
+            trailing: GestureDetector(
+              child: Icon(Icons.delete),
+              onTap: () {
                 _delete(context, noteList[position]);
               },
             ),
@@ -96,24 +101,24 @@ class _NoteListState extends State<NoteList> {
     }
   }
 
-  void _delete(ctx, Note note) async {
+  void _delete(context, Note note) async {
     int result = await dataBaseHelper.deleteNote(note.id);
     if (result != 0) {
-      _showSnackBar(ctx, 'Note Deleted Successfully');
+      _showSnackBar(context, 'Note Deleted Successfully');
       updateListView();
     }
   }
 
-  void _showSnackBar(ctx, String message) {
+  void _showSnackBar(context, String message) {
     final snackBar = SnackBar(content: Text(message));
     Scaffold.of(context).showSnackBar(snackBar);
   }
 
-  void navigateToDetail(Note note, String title) async {
+  void navigateToDetail(Note note, String appBarTitle) async {
     bool result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return NoteDetail(note, title);
+        return NoteDetail(appBarTitle, note);
       }),
     );
 
@@ -123,7 +128,7 @@ class _NoteListState extends State<NoteList> {
   }
 
   void updateListView() {
-    final Future<Database> dbFuture = dataBaseHelper.initialzeDatabase();
+    final Future<Database> dbFuture = dataBaseHelper.initializeDatabase();
     dbFuture.then((database) {
       Future<List<Note>> noteListFuture = dataBaseHelper.getNoteList();
       noteListFuture.then((noteList) {
