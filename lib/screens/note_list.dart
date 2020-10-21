@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:todo_sqflite/models/note.dart';
 import 'package:todo_sqflite/utils/database_helper.dart';
 
@@ -89,5 +90,29 @@ class _NoteListState extends State<NoteList> {
     }
   }
 
-  void _delete(context, Note note) async {}
+  void _delete(ctx, Note note) async {
+    int result = await dataBaseHelper.deleteNote(note.id);
+    if (result != 0) {
+      _showSnackBar(ctx, 'Note Deleted Successfully');
+      updateListView();
+    }
+  }
+
+  void _showSnackBar(ctx, String message) {
+    final snackBar = SnackBar(content: Text(message));
+    Scaffold.of(context).showSnackBar(snackBar);
+  }
+
+  void updateListView() {
+    final Future<Database> dbFuture = dataBaseHelper.initialzeDatabase();
+    dbFuture.then((database) {
+      Future<List<Note>> noteListFuture = dataBaseHelper.getNoteList();
+      noteListFuture.then((noteList) {
+        setState(() {
+          this.noteList = noteList;
+          this.count = noteList.length;
+        });
+      });
+    });
+  }
 }
