@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo_sqflite/models/note.dart';
+import 'package:todo_sqflite/screens/note_detail.dart';
 import 'package:todo_sqflite/utils/database_helper.dart';
 
 class NoteList extends StatefulWidget {
