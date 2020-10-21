@@ -72,4 +72,12 @@ class DataBaseHelper {
         await db.rawDelete('DELETE FROM $noteTable WHERE $colId = $id');
     return result;
   }
+
+  Future<int> getCount() async {
+    Database db = await this.database;
+    List<Map<String, dynamic>> x =
+        await db.rawQuery('SELECT COUNT (*) from $noteTable');
+    int result = Sqflite.firstIntValue(x);
+    return result;
+  }
 }
