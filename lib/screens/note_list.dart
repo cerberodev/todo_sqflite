@@ -53,9 +53,14 @@ class _NoteListState extends State<NoteList> {
             subtitle: Text(this.noteList[position].date),
             trailing: IconButton(
               icon: Icon(Icons.delete),
-              onPressed: () {},
+              onPressed: () {
+                _delete(context, noteList[position]);
+              },
             ),
-            onTap: () {},
+            onTap: () {
+              debugPrint("ListTitle Tapped");
+              navigateToDetail(this.noteList[position], 'Edit Note');
+            },
           ),
         );
       },
@@ -101,6 +106,19 @@ class _NoteListState extends State<NoteList> {
   void _showSnackBar(ctx, String message) {
     final snackBar = SnackBar(content: Text(message));
     Scaffold.of(context).showSnackBar(snackBar);
+  }
+
+  void navigateToDetail(Note note, String title) async {
+    bool result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return NoteDetail(note, title);
+      }),
+    );
+
+    if (result == true) {
+      updateListView();
+    }
   }
 
   void updateListView() {
