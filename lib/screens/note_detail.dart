@@ -22,11 +22,28 @@ class NoteDetailState extends State<NoteDetail> {
 
   String appBarTitle;
   Note note;
-
+  GlobalKey<FormState> _key = GlobalKey<FormState>();
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-
+  bool _enabled = false;
   NoteDetailState(this.note, this.appBarTitle);
+  @override
+  void initState() {
+    super.initState();
+    titleController.addListener(() {
+      !titleController.text.isEmpty && descriptionController.text.isNotEmpty
+          ? _enabled = true
+          : _enabled = false;
+      setState(() {});
+    });
+
+    descriptionController.addListener(() {
+      !descriptionController.text.isEmpty && titleController.text.isNotEmpty
+          ? _enabled = true
+          : _enabled = false;
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,83 +66,120 @@ class NoteDetailState extends State<NoteDetail> {
             },
           ),
         ),
-        body: Padding(
-          padding: EdgeInsets.all(10),
-          child: ListView(
-            children: [
-              ListTile(
-                title: DropdownButton(
-                  items: _priorities.map((String dropDownStringItem) {
-                    return DropdownMenuItem<String>(
-                      value: dropDownStringItem,
-                      child: Text(dropDownStringItem),
-                    );
-                  }).toList(),
-                  style: textStyle,
-                  value: getPriorityAsString(note.priority),
-                  onChanged: (valueSelectedByUser) {
-                    setState(() {
-                      debugPrint('User selected $valueSelectedByUser');
-                      updatePriorityAsInt(valueSelectedByUser);
-                    });
-                  },
+        body: Form(
+          key: _key,
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: ListView(
+              children: [
+                ListTile(
+                  title: DropdownButton(
+                    items: _priorities.map((String dropDownStringItem) {
+                      return DropdownMenuItem<String>(
+                        value: dropDownStringItem,
+                        child: Text(dropDownStringItem),
+                      );
+                    }).toList(),
+                    style: textStyle,
+                    value: getPriorityAsString(note.priority),
+                    onChanged: (valueSelectedByUser) {
+                      setState(() {
+                        debugPrint('User selected $valueSelectedByUser');
+                        updatePriorityAsInt(valueSelectedByUser);
+                      });
+                    },
+                  ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(15),
-                child: TextField(
-                  controller: titleController,
-                  style: textStyle,
-                  onChanged: (value) {
-                    debugPrint('Changed in Title of text field');
-                    updateTitle();
-                  },
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(15),
-                child: TextField(
-                  controller: descriptionController,
-                  style: textStyle,
-                  onChanged: (value) {
-                    debugPrint('Changed in Description of text field');
-                    updateDescription();
-                  },
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(15),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: RaisedButton(
-                        child: Text('Save'),
-                        onPressed: () {
-                          setState(() {
-                            debugPrint('OnPressed Save Raised Button');
-                            _save();
-                          });
-                        },
+                Padding(
+                  padding: EdgeInsets.all(15),
+                  child: TextFormField(
+                    validator: (String value) {
+                      return value.isEmpty
+                          ? 'Do not completed Title: Text Form Field.'
+                          : null;
+                    },
+                    controller: titleController,
+                    style: textStyle,
+                    onChanged: (value) {
+                      debugPrint('Changed in Title of text field');
+                      updateTitle();
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Title',
+                      suffixIcon: Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Icon(Icons.book),
                       ),
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Expanded(
-                      child: RaisedButton(
-                        child: Text('Delete'),
-                        onPressed: () {
-                          setState(() {
-                            debugPrint('OnPressed Delete Raised Button');
-                            _delete();
-                          });
-                        },
+                      icon: IconButton(
+                        icon: Icon(Icons.book),
+                        onPressed: () {},
+                        tooltip: 'Text',
                       ),
+                      prefixIcon: Icon(Icons.book),
+                      helperText: 'Adding your Title',
                     ),
-                  ],
+                    maxLength: 15,
+                  ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: EdgeInsets.all(15),
+                  child: TextFormField(
+                    validator: (String value) {
+                      return value.isEmpty
+                          ? 'Do not completed Description Text Form Field.'
+                          : null;
+                    },
+                    controller: descriptionController,
+                    style: textStyle,
+                    onChanged: (value) {
+                      debugPrint('Changed in Description of text field');
+                      updateDescription();
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: RaisedButton(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.save),
+                              Text('Save'),
+                            ],
+                          ),
+                          onPressed: _enabled
+                              ? () {
+                                  setState(() {
+                                    debugPrint('OnPressed Save Raised Button');
+                                    _save();
+                                  });
+                                }
+                              : null,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                        child: FlatButton(
+                          color: Colors.blue,
+                          child: Text('Delete'),
+                          onPressed: () {
+                            setState(() {
+                              debugPrint('OnPressed Delete Raised Button');
+                              _delete();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -169,6 +223,10 @@ class NoteDetailState extends State<NoteDetail> {
   }
 
   void _save() async {
+    if (!_key.currentState.validate()) {
+      return;
+    }
+
     moveToLastScreen();
 
     note.date = DateFormat.yMMMd().format(DateTime.now());
